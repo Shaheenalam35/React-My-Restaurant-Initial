@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { addToDb, getStoredCart } from "../../utilities/fakedb";
 import Meal from "../Meal/Meal";
 import OrderList from "../OrderList/OrderList";
 import "./Restaurant.css";
@@ -12,9 +13,24 @@ const Restaurant = () => {
       .then((res) => res.json())
       .then((data) => setMeals(data.meals));
   }, []);
+  useEffect(() => {
+    const storedOrder = getStoredCart();
+    const savedOrder = [];
+    for (const id in storedOrder) {
+      const addedMeal = meals.find((meal) => meal.idMeal === id);
+      if (addedMeal) {
+        const quantity = storedOrder[id];
+        addedMeal.quantity = quantity;
+        savedOrder.push(addedMeal);
+      }
+    }
+    setOrders(savedOrder);
+  }, [meals]);
 
   const handleAddToOrder = (meal) => {
-    console.log(meal);
+    const newOrders = [...orders, meal];
+    setOrders(newOrders);
+    addToDb(meal.idMeal);
   };
 
   /* 
